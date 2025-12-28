@@ -37,19 +37,9 @@ const TITLE_SELECTORS = [
   'p[class*="VideoTitle"]'
 ];
 
-const HOVER_PREVIEW_SELECTORS = [
-  'video[class*="preview"]',
-  '[class*="hover-preview"]',
-  'video[autoplay]',
-  '[data-a-target="animated-channel-viewers-list-item"] video',
-  '[class*="preview-card"] video',
-  '.video-preview-card video'
-];
-
 // Make available globally for content scripts
 if (typeof window !== 'undefined') {
   window.THUMBNAIL_SELECTORS = THUMBNAIL_SELECTORS;
   window.VOD_LENGTH_SELECTORS = VOD_LENGTH_SELECTORS;
   window.TITLE_SELECTORS = TITLE_SELECTORS;
-  window.HOVER_PREVIEW_SELECTORS = HOVER_PREVIEW_SELECTORS;
 }

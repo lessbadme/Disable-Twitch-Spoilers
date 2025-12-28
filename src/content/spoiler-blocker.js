@@ -48,9 +48,6 @@ class TwitchSpoilerBlocker {
     if (this.settings.hideTitles) {
       this.hideTitles();
     }
-    if (this.settings.hideHoverPreviews) {
-      this.hideHoverPreviews();
-    }
   }
 
   handleMutations(mutations) {
@@ -86,9 +83,6 @@ class TwitchSpoilerBlocker {
     }
     if (this.settings.hideTitles) {
       this.checkAndHideTitle(element);
-    }
-    if (this.settings.hideHoverPreviews) {
-      this.checkAndHideHoverPreview(element);
     }
 
     this.appliedElements.add(element);
@@ -190,23 +184,6 @@ class TwitchSpoilerBlocker {
     }, 500);
   }
 
-  hideHoverPreviews() {
-    const selectors = window.HOVER_PREVIEW_SELECTORS.join(', ');
-    const elements = document.querySelectorAll(selectors);
-    console.log(`[Spoiler Blocker] Found ${elements.length} hover preview elements`);
-
-    elements.forEach(el => {
-      if (!this.appliedElements.has(el)) {
-        el.classList.add('spoiler-hidden-hover-preview');
-        // Also prevent autoplay
-        if (el.tagName === 'VIDEO') {
-          el.pause();
-          el.removeAttribute('autoplay');
-        }
-        this.appliedElements.add(el);
-      }
-    });
-  }
 
   checkAndHideThumbnail(element) {
     for (const selector of window.THUMBNAIL_SELECTORS) {
@@ -280,18 +257,6 @@ class TwitchSpoilerBlocker {
     }
   }
 
-  checkAndHideHoverPreview(element) {
-    for (const selector of window.HOVER_PREVIEW_SELECTORS) {
-      if (element.matches(selector)) {
-        element.classList.add('spoiler-hidden-hover-preview');
-        if (element.tagName === 'VIDEO') {
-          element.pause();
-          element.removeAttribute('autoplay');
-        }
-        return;
-      }
-    }
-  }
 
   updateSettings(newSettings) {
     console.log('[Spoiler Blocker] Updating settings:', newSettings);
@@ -313,7 +278,7 @@ class TwitchSpoilerBlocker {
       el.classList.remove('spoiler-hidden-thumbnail');
     });
 
-    // Remove element hiding (includes hidden tooltips)
+    // Remove element hiding
     document.querySelectorAll('.spoiler-hidden-element').forEach(el => {
       el.classList.remove('spoiler-hidden-element');
     });
@@ -325,11 +290,6 @@ class TwitchSpoilerBlocker {
         delete el.dataset.originalText;
       }
       el.classList.remove('spoiler-hidden-text');
-    });
-
-    // Remove hover preview hiding
-    document.querySelectorAll('.spoiler-hidden-hover-preview').forEach(el => {
-      el.classList.remove('spoiler-hidden-hover-preview');
     });
   }
 
