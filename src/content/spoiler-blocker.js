@@ -155,6 +155,10 @@ class TwitchSpoilerBlocker {
     allElements.forEach(el => {
       if (!this.appliedElements.has(el)) {
         this.replaceTitleText(el);
+        // Monitor tooltips for changes (Twitch re-renders them)
+        if (el.closest('.online-side-nav-channel-tooltip__body')) {
+          this.monitorTooltipForChanges(el);
+        }
         this.appliedElements.add(el);
       }
     });
@@ -226,9 +230,43 @@ class TwitchSpoilerBlocker {
       const tooltipBody = element.closest('.online-side-nav-channel-tooltip__body');
       if (tooltipBody && tooltipBody.querySelector('p') === element) {
         this.replaceTitleText(element);
+        this.monitorTooltipForChanges(element);
         return;
       }
     }
+  }
+
+  monitorTooltipForChanges(element) {
+    // Watch for Twitch re-rendering the tooltip text
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'characterData' || mutation.type === 'childList') {
+          // Text changed - re-apply hiding
+          if (element.textContent !== '[SPOILER HIDDEN]') {
+            element.textContent = '[SPOILER HIDDEN]';
+          }
+        }
+      }
+    });
+
+    observer.observe(element, {
+      characterData: true,
+      childList: true,
+      subtree: true
+    });
+
+    // Disconnect observer when tooltip is removed
+    const disconnectObserver = () => {
+      observer.disconnect();
+    };
+
+    // Check periodically if element is still in DOM
+    const checkInterval = setInterval(() => {
+      if (!document.body.contains(element)) {
+        disconnectObserver();
+        clearInterval(checkInterval);
+      }
+    }, 500);
   }
 
   replaceTitleText(element) {
