@@ -18,6 +18,8 @@ const VOD_LENGTH_SELECTORS = [
   '.tw-media-card-stat',
   '[class*="MediaCardStat"]',
   '[data-a-target="video-time"]',
+  '[data-a-target="player-seekbar-current-time"]',
+  '[data-a-target="player-seekbar-duration"]',
   '[class*="video-length"]',
   '[class*="duration-overlay"]',
   '.video-duration-overlay',
