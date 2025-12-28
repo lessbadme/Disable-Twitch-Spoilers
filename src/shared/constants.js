@@ -2,8 +2,7 @@
 const DEFAULT_SETTINGS = {
   hideThumbnails: true,
   hideVodLength: true,
-  hideTitles: false,
-  hideHoverPreviews: true
+  hideTitles: false
 };
 
 // Make available globally for content scripts (non-module context)

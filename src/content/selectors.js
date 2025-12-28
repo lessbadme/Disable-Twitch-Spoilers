@@ -30,24 +30,11 @@ const VOD_LENGTH_SELECTORS = [
 const TITLE_SELECTORS = [
   '[data-a-target="stream-title"]',
   '[data-a-target="video-title"]',
-  'a[href^="/videos/"] h4',
-  '.online-side-nav-channel-tooltip__body p',
-  'h3[class*="tw-title"]',
+  'h3[class*="tw-title"][class*="video"]',
   'h3[class*="video-card"]',
   '.video-card-title',
-  '[class*="CoreText"][class*="title"]',
-  'a[data-a-target*="title"] h3',
   'div[class*="VideoTitle"]',
   'p[class*="VideoTitle"]'
-];
-
-const HOVER_PREVIEW_SELECTORS = [
-  'video[class*="preview"]',
-  '[class*="hover-preview"]',
-  'video[autoplay]',
-  '[data-a-target="animated-channel-viewers-list-item"] video',
-  '[class*="preview-card"] video',
-  '.video-preview-card video'
 ];
 
 // Make available globally for content scripts
@@ -55,5 +42,4 @@ if (typeof window !== 'undefined') {
   window.THUMBNAIL_SELECTORS = THUMBNAIL_SELECTORS;
   window.VOD_LENGTH_SELECTORS = VOD_LENGTH_SELECTORS;
   window.TITLE_SELECTORS = TITLE_SELECTORS;
-  window.HOVER_PREVIEW_SELECTORS = HOVER_PREVIEW_SELECTORS;
 }

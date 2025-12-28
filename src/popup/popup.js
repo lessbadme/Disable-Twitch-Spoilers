@@ -9,8 +9,7 @@
   const toggles = {
     hideThumbnails: document.getElementById('toggle-thumbnails'),
     hideVodLength: document.getElementById('toggle-vod-length'),
-    hideTitles: document.getElementById('toggle-titles'),
-    hideHoverPreviews: document.getElementById('toggle-hover-previews')
+    hideTitles: document.getElementById('toggle-titles')
   };
 
   // Initialize popup with saved settings
@@ -23,7 +22,6 @@
       toggles.hideThumbnails.checked = settings.hideThumbnails;
       toggles.hideVodLength.checked = settings.hideVodLength;
       toggles.hideTitles.checked = settings.hideTitles;
-      toggles.hideHoverPreviews.checked = settings.hideHoverPreviews;
 
       // Add change listeners to all toggles
       Object.keys(toggles).forEach(key => {
