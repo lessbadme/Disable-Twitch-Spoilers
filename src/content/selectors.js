@@ -30,10 +30,9 @@ const VOD_LENGTH_SELECTORS = [
 const TITLE_SELECTORS = [
   '[data-a-target="stream-title"]',
   '[data-a-target="video-title"]',
-  'h3[class*="tw-title"]',
+  'h3[class*="tw-title"][class*="video"]',
   'h3[class*="video-card"]',
   '.video-card-title',
-  '[class*="CoreText"][class*="title"]',
   'div[class*="VideoTitle"]',
   'p[class*="VideoTitle"]'
 ];

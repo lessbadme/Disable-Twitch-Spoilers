@@ -23,6 +23,18 @@ class TwitchSpoilerBlocker {
       subtree: true
     });
 
+    // Retry hiding after a short delay to catch Twitch's dynamic content
+    setTimeout(() => {
+      console.log('[Spoiler Blocker] Re-running after delay to catch dynamic content');
+      this.hideExistingElements();
+    }, 1000);
+
+    // Retry again after Twitch loads more content
+    setTimeout(() => {
+      console.log('[Spoiler Blocker] Final re-run to catch late-loading content');
+      this.hideExistingElements();
+    }, 3000);
+
     console.log('[Spoiler Blocker] Initialized and observing DOM');
   }
 
@@ -126,8 +138,11 @@ class TwitchSpoilerBlocker {
     const selectors = window.TITLE_SELECTORS.join(', ');
     const elements = document.querySelectorAll(selectors);
 
-    // Also find titles within video links
-    const videoLinkTitles = document.querySelectorAll('a[href^="/videos/"] h4, a[href^="/videos/"] h3, a[href^="/videos/"] p');
+    // Also find titles within video links (VOD preview cards)
+    const videoLinkTitles = Array.from(document.querySelectorAll('a[href^="/videos/"] h4, a[href^="/videos/"] h3')).filter(el => {
+      // Exclude usernames and other non-title elements
+      return !el.closest('[data-a-target="video-info-game-boxart-link"]') && !el.closest('h1');
+    });
 
     // And tooltip titles
     const tooltipTitles = document.querySelectorAll('.online-side-nav-channel-tooltip__body p:first-child');
@@ -194,14 +209,18 @@ class TwitchSpoilerBlocker {
       }
     }
 
-    // Check if element is a title within a video link
-    if ((element.tagName === 'H4' || element.tagName === 'H3' || element.tagName === 'P') &&
+    // Check if element is a title within a video link (VOD preview cards)
+    if ((element.tagName === 'H4' || element.tagName === 'H3') &&
         element.closest('a[href^="/videos/"]')) {
-      this.replaceTitleText(element);
-      return;
+      // Make sure it's not a username or other text
+      if (!element.closest('[data-a-target="video-info-game-boxart-link"]') &&
+          !element.closest('h1')) {
+        this.replaceTitleText(element);
+        return;
+      }
     }
 
-    // Check if element is within a tooltip
+    // Check if element is within a tooltip (hover preview)
     if (element.tagName === 'P' && element.closest('.online-side-nav-channel-tooltip__body')) {
       // Only replace if it looks like a title (first p in the tooltip)
       const tooltipBody = element.closest('.online-side-nav-channel-tooltip__body');
