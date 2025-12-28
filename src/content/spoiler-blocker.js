@@ -98,18 +98,22 @@ class TwitchSpoilerBlocker {
   hideVodLength() {
     const selectors = window.VOD_LENGTH_SELECTORS.join(', ');
     const elements = document.querySelectorAll(selectors);
-    console.log(`[Spoiler Blocker] Found ${elements.length} VOD length elements`);
+    console.log(`[Spoiler Blocker] Found ${elements.length} potential VOD length elements`);
 
+    let hiddenCount = 0;
     elements.forEach(el => {
       if (!this.appliedElements.has(el)) {
         // Only hide if it looks like a duration (MM:SS or HH:MM:SS format)
         const text = el.textContent.trim();
         if (this.isDuration(text)) {
+          console.log(`[Spoiler Blocker] Hiding duration: "${text}"`);
           el.classList.add('spoiler-hidden-element');
           this.appliedElements.add(el);
+          hiddenCount++;
         }
       }
     });
+    console.log(`[Spoiler Blocker] Hid ${hiddenCount} VOD length elements`);
   }
 
   isDuration(text) {
@@ -118,19 +122,24 @@ class TwitchSpoilerBlocker {
   }
 
   hideTitles() {
+    // Direct selectors
     const selectors = window.TITLE_SELECTORS.join(', ');
     const elements = document.querySelectorAll(selectors);
-    console.log(`[Spoiler Blocker] Found ${elements.length} title elements`);
 
-    elements.forEach(el => {
+    // Also find titles within video links
+    const videoLinkTitles = document.querySelectorAll('a[href^="/videos/"] h4, a[href^="/videos/"] h3, a[href^="/videos/"] p');
+
+    // And tooltip titles
+    const tooltipTitles = document.querySelectorAll('.online-side-nav-channel-tooltip__body p:first-child');
+
+    // Combine all
+    const allElements = new Set([...elements, ...videoLinkTitles, ...tooltipTitles]);
+
+    console.log(`[Spoiler Blocker] Found ${allElements.size} title elements`);
+
+    allElements.forEach(el => {
       if (!this.appliedElements.has(el)) {
-        // Store original text if not already stored
-        if (!el.dataset.originalText) {
-          el.dataset.originalText = el.textContent;
-        }
-        // Replace with spoiler warning
-        el.textContent = '[SPOILER HIDDEN]';
-        el.classList.add('spoiler-hidden-text');
+        this.replaceTitleText(el);
         this.appliedElements.add(el);
       }
     });
@@ -177,18 +186,42 @@ class TwitchSpoilerBlocker {
   }
 
   checkAndHideTitle(element) {
+    // Check direct selectors
     for (const selector of window.TITLE_SELECTORS) {
       if (element.matches(selector)) {
-        // Store original text if not already stored
-        if (!element.dataset.originalText) {
-          element.dataset.originalText = element.textContent;
-        }
-        // Replace with spoiler warning
-        element.textContent = '[SPOILER HIDDEN]';
-        element.classList.add('spoiler-hidden-text');
+        this.replaceTitleText(element);
         return;
       }
     }
+
+    // Check if element is a title within a video link
+    if ((element.tagName === 'H4' || element.tagName === 'H3' || element.tagName === 'P') &&
+        element.closest('a[href^="/videos/"]')) {
+      this.replaceTitleText(element);
+      return;
+    }
+
+    // Check if element is within a tooltip
+    if (element.tagName === 'P' && element.closest('.online-side-nav-channel-tooltip__body')) {
+      // Only replace if it looks like a title (first p in the tooltip)
+      const tooltipBody = element.closest('.online-side-nav-channel-tooltip__body');
+      if (tooltipBody && tooltipBody.querySelector('p') === element) {
+        this.replaceTitleText(element);
+        return;
+      }
+    }
+  }
+
+  replaceTitleText(element) {
+    // Store original text if not already stored
+    if (!element.dataset.originalText) {
+      element.dataset.originalText = element.textContent;
+    }
+    const originalText = element.textContent;
+    // Replace with spoiler warning
+    element.textContent = '[SPOILER HIDDEN]';
+    element.classList.add('spoiler-hidden-text');
+    console.log(`[Spoiler Blocker] Replaced title: "${originalText.substring(0, 50)}..."`);
   }
 
   checkAndHideHoverPreview(element) {
