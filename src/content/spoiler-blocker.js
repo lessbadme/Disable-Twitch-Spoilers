@@ -5,7 +5,6 @@ class TwitchSpoilerBlocker {
     this.settings = settings;
     this.observer = null;
     this.appliedElements = new WeakSet();
-    this.tooltipObservers = new Map(); // Track tooltip observers for cleanup
   }
 
   init() {
@@ -145,7 +144,7 @@ class TwitchSpoilerBlocker {
       return !el.closest('[data-a-target="video-info-game-boxart-link"]') && !el.closest('h1');
     });
 
-    // And tooltip titles
+    // And tooltip titles - but mark them specially
     const tooltipTitles = document.querySelectorAll('.online-side-nav-channel-tooltip__body p:first-child');
 
     // Combine all
@@ -155,11 +154,8 @@ class TwitchSpoilerBlocker {
 
     allElements.forEach(el => {
       if (!this.appliedElements.has(el)) {
-        this.replaceTitleText(el);
-        // Monitor tooltips for changes (Twitch re-renders them)
-        if (el.closest('.online-side-nav-channel-tooltip__body')) {
-          this.monitorTooltipForChanges(el);
-        }
+        const isTooltip = el.closest('.online-side-nav-channel-tooltip__body');
+        this.replaceTitleText(el, isTooltip);
         this.appliedElements.add(el);
       }
     });
@@ -209,7 +205,7 @@ class TwitchSpoilerBlocker {
     // Check direct selectors
     for (const selector of window.TITLE_SELECTORS) {
       if (element.matches(selector)) {
-        this.replaceTitleText(element);
+        this.replaceTitleText(element, false);
         return;
       }
     }
@@ -220,7 +216,7 @@ class TwitchSpoilerBlocker {
       // Make sure it's not a username or other text
       if (!element.closest('[data-a-target="video-info-game-boxart-link"]') &&
           !element.closest('h1')) {
-        this.replaceTitleText(element);
+        this.replaceTitleText(element, false);
         return;
       }
     }
@@ -230,71 +226,28 @@ class TwitchSpoilerBlocker {
       // Only replace if it looks like a title (first p in the tooltip)
       const tooltipBody = element.closest('.online-side-nav-channel-tooltip__body');
       if (tooltipBody && tooltipBody.querySelector('p') === element) {
-        this.replaceTitleText(element);
-        this.monitorTooltipForChanges(element);
+        this.replaceTitleText(element, true);
         return;
       }
     }
   }
 
-  monitorTooltipForChanges(element) {
-    // Don't create duplicate observers
-    if (this.tooltipObservers.has(element)) {
-      return;
+  replaceTitleText(element, isTooltip = false) {
+    if (isTooltip) {
+      // For tooltips, just hide the entire tooltip container instead of fighting with text replacement
+      const tooltipContainer = element.closest('[class*="tw-balloon"]') || element.closest('[role="tooltip"]');
+      if (tooltipContainer) {
+        tooltipContainer.classList.add('spoiler-hidden-element');
+        console.log(`[Spoiler Blocker] Hid tooltip container`);
+        return;
+      }
     }
 
-    // Watch for Twitch re-rendering the tooltip text
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.type === 'characterData' || mutation.type === 'childList') {
-          // Only re-apply if titles are still enabled
-          if (this.settings.hideTitles && element.textContent !== '[SPOILER HIDDEN]') {
-            element.textContent = '[SPOILER HIDDEN]';
-          }
-        }
-      }
-    });
-
-    observer.observe(element, {
-      characterData: true,
-      childList: true,
-      subtree: true
-    });
-
-    // Store observer and cleanup function
-    const checkInterval = setInterval(() => {
-      if (!document.body.contains(element)) {
-        this.cleanupTooltipObserver(element);
-      }
-    }, 500);
-
-    this.tooltipObservers.set(element, { observer, checkInterval });
-  }
-
-  cleanupTooltipObserver(element) {
-    const observerData = this.tooltipObservers.get(element);
-    if (observerData) {
-      observerData.observer.disconnect();
-      clearInterval(observerData.checkInterval);
-      this.tooltipObservers.delete(element);
-    }
-  }
-
-  cleanupAllTooltipObservers() {
-    this.tooltipObservers.forEach((observerData, element) => {
-      observerData.observer.disconnect();
-      clearInterval(observerData.checkInterval);
-    });
-    this.tooltipObservers.clear();
-  }
-
-  replaceTitleText(element) {
-    // Store original text if not already stored
+    // For regular titles, replace the text
     if (!element.dataset.originalText) {
       element.dataset.originalText = element.textContent;
     }
     const originalText = element.textContent;
-    // Replace with spoiler warning
     element.textContent = '[SPOILER HIDDEN]';
     element.classList.add('spoiler-hidden-text');
     console.log(`[Spoiler Blocker] Replaced title: "${originalText.substring(0, 50)}..."`);
@@ -328,15 +281,12 @@ class TwitchSpoilerBlocker {
   }
 
   removeAllHiding() {
-    // Clean up all tooltip observers first
-    this.cleanupAllTooltipObservers();
-
     // Remove thumbnail hiding
     document.querySelectorAll('.spoiler-hidden-thumbnail').forEach(el => {
       el.classList.remove('spoiler-hidden-thumbnail');
     });
 
-    // Remove element hiding
+    // Remove element hiding (includes hidden tooltips)
     document.querySelectorAll('.spoiler-hidden-element').forEach(el => {
       el.classList.remove('spoiler-hidden-element');
     });
@@ -361,7 +311,6 @@ class TwitchSpoilerBlocker {
       this.observer.disconnect();
       this.observer = null;
     }
-    this.cleanupAllTooltipObservers();
     this.removeAllHiding();
     console.log('[Spoiler Blocker] Destroyed');
   }
