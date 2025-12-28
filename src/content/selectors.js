@@ -18,8 +18,6 @@ const VOD_LENGTH_SELECTORS = [
   '.tw-media-card-stat',
   '[class*="MediaCardStat"]',
   '[data-a-target="video-time"]',
-  '[data-a-target="player-seekbar-current-time"]',
-  '[data-a-target="player-seekbar-duration"]',
   '[class*="video-length"]',
   '[class*="duration-overlay"]',
   '.video-duration-overlay',
@@ -27,6 +25,11 @@ const VOD_LENGTH_SELECTORS = [
   '[class*="ScVideoLength"]',
   'div[class*="video-time"]',
   'span[class*="video-time"]'
+];
+
+const PLAYER_TIME_SELECTORS = [
+  '[data-a-target="player-seekbar-current-time"]',
+  '[data-a-target="player-seekbar-duration"]'
 ];
 
 const TITLE_SELECTORS = [
@@ -43,5 +46,6 @@ const TITLE_SELECTORS = [
 if (typeof window !== 'undefined') {
   window.THUMBNAIL_SELECTORS = THUMBNAIL_SELECTORS;
   window.VOD_LENGTH_SELECTORS = VOD_LENGTH_SELECTORS;
+  window.PLAYER_TIME_SELECTORS = PLAYER_TIME_SELECTORS;
   window.TITLE_SELECTORS = TITLE_SELECTORS;
 }

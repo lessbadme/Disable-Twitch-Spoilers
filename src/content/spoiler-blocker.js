@@ -48,6 +48,9 @@ class TwitchSpoilerBlocker {
     if (this.settings.hideTitles) {
       this.hideTitles();
     }
+    if (this.settings.hidePlayerTimes) {
+      this.hidePlayerTimes();
+    }
   }
 
   handleMutations(mutations) {
@@ -83,6 +86,9 @@ class TwitchSpoilerBlocker {
     }
     if (this.settings.hideTitles) {
       this.checkAndHideTitle(element);
+    }
+    if (this.settings.hidePlayerTimes) {
+      this.checkAndHidePlayerTime(element);
     }
 
     this.appliedElements.add(element);
@@ -184,6 +190,18 @@ class TwitchSpoilerBlocker {
     }, 500);
   }
 
+  hidePlayerTimes() {
+    const selectors = window.PLAYER_TIME_SELECTORS.join(', ');
+    const elements = document.querySelectorAll(selectors);
+    console.log(`[Spoiler Blocker] Found ${elements.length} player time elements`);
+
+    elements.forEach(el => {
+      if (!this.appliedElements.has(el)) {
+        el.classList.add('spoiler-hidden-element');
+        this.appliedElements.add(el);
+      }
+    });
+  }
 
   checkAndHideThumbnail(element) {
     for (const selector of window.THUMBNAIL_SELECTORS) {
@@ -257,6 +275,14 @@ class TwitchSpoilerBlocker {
     }
   }
 
+  checkAndHidePlayerTime(element) {
+    for (const selector of window.PLAYER_TIME_SELECTORS) {
+      if (element.matches(selector)) {
+        element.classList.add('spoiler-hidden-element');
+        return;
+      }
+    }
+  }
 
   updateSettings(newSettings) {
     console.log('[Spoiler Blocker] Updating settings:', newSettings);
