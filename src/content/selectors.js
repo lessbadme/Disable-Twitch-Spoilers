@@ -15,6 +15,8 @@ const THUMBNAIL_SELECTORS = [
 ];
 
 const VOD_LENGTH_SELECTORS = [
+  '.tw-media-card-stat',
+  '[class*="MediaCardStat"]',
   '[data-a-target="video-time"]',
   '[class*="video-length"]',
   '[class*="duration-overlay"]',
@@ -26,7 +28,10 @@ const VOD_LENGTH_SELECTORS = [
 ];
 
 const TITLE_SELECTORS = [
+  '[data-a-target="stream-title"]',
   '[data-a-target="video-title"]',
+  'a[href^="/videos/"] h4',
+  '.online-side-nav-channel-tooltip__body p',
   'h3[class*="tw-title"]',
   'h3[class*="video-card"]',
   '.video-card-title',

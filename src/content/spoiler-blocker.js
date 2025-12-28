@@ -102,10 +102,19 @@ class TwitchSpoilerBlocker {
 
     elements.forEach(el => {
       if (!this.appliedElements.has(el)) {
-        el.classList.add('spoiler-hidden-element');
-        this.appliedElements.add(el);
+        // Only hide if it looks like a duration (MM:SS or HH:MM:SS format)
+        const text = el.textContent.trim();
+        if (this.isDuration(text)) {
+          el.classList.add('spoiler-hidden-element');
+          this.appliedElements.add(el);
+        }
       }
     });
+  }
+
+  isDuration(text) {
+    // Match patterns like 1:23, 12:34, 1:23:45, or 12:34:56
+    return /^\d{1,2}:\d{2}(:\d{2})?$/.test(text);
   }
 
   hideTitles() {
@@ -115,6 +124,12 @@ class TwitchSpoilerBlocker {
 
     elements.forEach(el => {
       if (!this.appliedElements.has(el)) {
+        // Store original text if not already stored
+        if (!el.dataset.originalText) {
+          el.dataset.originalText = el.textContent;
+        }
+        // Replace with spoiler warning
+        el.textContent = '[SPOILER HIDDEN]';
         el.classList.add('spoiler-hidden-text');
         this.appliedElements.add(el);
       }
@@ -151,7 +166,11 @@ class TwitchSpoilerBlocker {
   checkAndHideVodLength(element) {
     for (const selector of window.VOD_LENGTH_SELECTORS) {
       if (element.matches(selector)) {
-        element.classList.add('spoiler-hidden-element');
+        // Only hide if it looks like a duration
+        const text = element.textContent.trim();
+        if (this.isDuration(text)) {
+          element.classList.add('spoiler-hidden-element');
+        }
         return;
       }
     }
@@ -160,6 +179,12 @@ class TwitchSpoilerBlocker {
   checkAndHideTitle(element) {
     for (const selector of window.TITLE_SELECTORS) {
       if (element.matches(selector)) {
+        // Store original text if not already stored
+        if (!element.dataset.originalText) {
+          element.dataset.originalText = element.textContent;
+        }
+        // Replace with spoiler warning
+        element.textContent = '[SPOILER HIDDEN]';
         element.classList.add('spoiler-hidden-text');
         return;
       }
@@ -204,8 +229,12 @@ class TwitchSpoilerBlocker {
       el.classList.remove('spoiler-hidden-element');
     });
 
-    // Remove text hiding
+    // Remove text hiding and restore original text
     document.querySelectorAll('.spoiler-hidden-text').forEach(el => {
+      if (el.dataset.originalText) {
+        el.textContent = el.dataset.originalText;
+        delete el.dataset.originalText;
+      }
       el.classList.remove('spoiler-hidden-text');
     });
 

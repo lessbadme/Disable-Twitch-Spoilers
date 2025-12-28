@@ -12,9 +12,11 @@
   display: none !important;
 }
 
-/* Hide text while maintaining layout */
+/* Style spoiler-hidden text to make it clear it's a spoiler warning */
 .spoiler-hidden-text {
-  visibility: hidden !important;
+  color: #9147ff !important; /* Twitch purple */
+  font-style: italic !important;
+  opacity: 0.8 !important;
 }
 
 /* Prevent hover previews from playing */
