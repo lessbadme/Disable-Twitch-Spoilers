@@ -5,6 +5,7 @@ class TwitchSpoilerBlocker {
     this.settings = settings;
     this.observer = null;
     this.appliedElements = new WeakSet();
+    this.tooltipObservers = new Map(); // Track tooltip observers for cleanup
   }
 
   init() {
@@ -237,12 +238,17 @@ class TwitchSpoilerBlocker {
   }
 
   monitorTooltipForChanges(element) {
+    // Don't create duplicate observers
+    if (this.tooltipObservers.has(element)) {
+      return;
+    }
+
     // Watch for Twitch re-rendering the tooltip text
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         if (mutation.type === 'characterData' || mutation.type === 'childList') {
-          // Text changed - re-apply hiding
-          if (element.textContent !== '[SPOILER HIDDEN]') {
+          // Only re-apply if titles are still enabled
+          if (this.settings.hideTitles && element.textContent !== '[SPOILER HIDDEN]') {
             element.textContent = '[SPOILER HIDDEN]';
           }
         }
@@ -255,18 +261,31 @@ class TwitchSpoilerBlocker {
       subtree: true
     });
 
-    // Disconnect observer when tooltip is removed
-    const disconnectObserver = () => {
-      observer.disconnect();
-    };
-
-    // Check periodically if element is still in DOM
+    // Store observer and cleanup function
     const checkInterval = setInterval(() => {
       if (!document.body.contains(element)) {
-        disconnectObserver();
-        clearInterval(checkInterval);
+        this.cleanupTooltipObserver(element);
       }
     }, 500);
+
+    this.tooltipObservers.set(element, { observer, checkInterval });
+  }
+
+  cleanupTooltipObserver(element) {
+    const observerData = this.tooltipObservers.get(element);
+    if (observerData) {
+      observerData.observer.disconnect();
+      clearInterval(observerData.checkInterval);
+      this.tooltipObservers.delete(element);
+    }
+  }
+
+  cleanupAllTooltipObservers() {
+    this.tooltipObservers.forEach((observerData, element) => {
+      observerData.observer.disconnect();
+      clearInterval(observerData.checkInterval);
+    });
+    this.tooltipObservers.clear();
   }
 
   replaceTitleText(element) {
@@ -309,6 +328,9 @@ class TwitchSpoilerBlocker {
   }
 
   removeAllHiding() {
+    // Clean up all tooltip observers first
+    this.cleanupAllTooltipObservers();
+
     // Remove thumbnail hiding
     document.querySelectorAll('.spoiler-hidden-thumbnail').forEach(el => {
       el.classList.remove('spoiler-hidden-thumbnail');
@@ -339,6 +361,7 @@ class TwitchSpoilerBlocker {
       this.observer.disconnect();
       this.observer = null;
     }
+    this.cleanupAllTooltipObservers();
     this.removeAllHiding();
     console.log('[Spoiler Blocker] Destroyed');
   }
