@@ -201,6 +201,32 @@ class TwitchSpoilerBlocker {
         this.appliedElements.add(el);
       }
     });
+
+    // Also hide the progress bar fill (purple bar showing watch progress)
+    this.hideSeekbarProgress();
+  }
+
+  hideSeekbarProgress() {
+    // Find all seekbar segments
+    const segments = document.querySelectorAll('span[data-test-selector="seekbar-segment__segment"]');
+    let hiddenCount = 0;
+
+    segments.forEach(el => {
+      if (!this.appliedElements.has(el)) {
+        // Check if this is the purple progress bar (not white markers or red segments)
+        const style = el.getAttribute('style') || '';
+        if (style.includes('rgb(169, 112, 255)') || style.includes('rgba(169, 112, 255')) {
+          el.classList.add('spoiler-hidden-element');
+          this.appliedElements.add(el);
+          hiddenCount++;
+          console.log('[Spoiler Blocker] Hiding progress bar segment');
+        }
+      }
+    });
+
+    if (hiddenCount > 0) {
+      console.log(`[Spoiler Blocker] Hid ${hiddenCount} seekbar progress segments`);
+    }
   }
 
   checkAndHideThumbnail(element) {
@@ -280,6 +306,15 @@ class TwitchSpoilerBlocker {
       if (element.matches(selector)) {
         element.classList.add('spoiler-hidden-element');
         return;
+      }
+    }
+
+    // Check if this is a seekbar progress segment
+    if (element.matches('span[data-test-selector="seekbar-segment__segment"]')) {
+      const style = element.getAttribute('style') || '';
+      if (style.includes('rgb(169, 112, 255)') || style.includes('rgba(169, 112, 255')) {
+        element.classList.add('spoiler-hidden-element');
+        console.log('[Spoiler Blocker] Hiding dynamically added progress bar segment');
       }
     }
   }
