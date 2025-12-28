@@ -1,0 +1,30 @@
+/* Spoiler hiding styles for Twitch */
+
+/* Blur filter for thumbnails - maintains layout while hiding content */
+.spoiler-hidden-thumbnail {
+  filter: blur(20px) !important;
+  opacity: 0.3 !important;
+  transition: filter 0.2s ease, opacity 0.2s ease !important;
+}
+
+/* Complete hiding for elements like VOD lengths and titles */
+.spoiler-hidden-element {
+  display: none !important;
+}
+
+/* Hide text while maintaining layout */
+.spoiler-hidden-text {
+  visibility: hidden !important;
+}
+
+/* Prevent hover previews from playing */
+.spoiler-hidden-hover-preview {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Alternative: completely blur for stronger spoiler protection */
+.spoiler-hidden-blur {
+  filter: blur(30px) !important;
+  pointer-events: none !important;
+}

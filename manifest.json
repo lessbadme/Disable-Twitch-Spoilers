@@ -1,27 +1,48 @@
 {
-  "description": "Hides traces of VOD length for twitch.tv, specifically the timestamps on video preview, in the vod player ",
-  "manifest_version": 2,
-  "name": "twitch-vod-time-remover",
-  "version": "3.0",
-  "homepage_url": "https://github.com/bafox2/twitch-vod-time-remover",
-  "icons": {
-    "32": "icons/ez-32.png"
-  },
-  "permissions": ["activeTab", "storage"],
-  "background": {
-    "scripts": ["background.js"],
-    "persistent": false
-  },
+  "manifest_version": 3,
+  "name": "Twitch Spoiler Blocker",
+  "version": "1.0.0",
+  "description": "Avoid spoilers on Twitch by hiding thumbnails, VOD lengths, titles, and hover previews",
+
+  "permissions": ["storage"],
+
+  "host_permissions": ["*://*.twitch.tv/*"],
+
   "content_scripts": [
     {
-      "matches": ["https://www.twitch.tv/*"],
-      "js": ["spoilerContent.js"],
-      "run_at": "document_end"
+      "matches": ["*://*.twitch.tv/*"],
+      "js": [
+        "src/shared/constants.js",
+        "src/shared/storage.js",
+        "src/content/selectors.js",
+        "src/content/spoiler-blocker.js",
+        "src/content/content.js"
+      ],
+      "css": ["src/content/content.css"],
+      "run_at": "document_idle"
     }
   ],
-  "browser_action": {
-    "default_icon": "icons/hard-32.png",
-    "default_title": "Twitch Spoiler Avoider",
-    "default_popup": "popup/menu.html"
+
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
+    "default_title": "Twitch Spoiler Blocker"
+  },
+
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "twitch-spoiler-blocker@spoilerwarning.dev",
+      "strict_min_version": "109.0"
+    }
   }
 }

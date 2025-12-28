@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twitch Spoiler Blocker</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header>
+      <h1>Twitch Spoiler Blocker</h1>
+      <p class="subtitle">Control what you want to hide</p>
+    </header>
+
+    <main>
+      <div class="toggle-group">
+        <div class="toggle-item">
+          <label for="toggle-thumbnails">
+            <span class="label-text">Hide Thumbnails</span>
+            <span class="label-description">Blur video preview images</span>
+          </label>
+          <input type="checkbox" id="toggle-thumbnails" class="toggle-switch">
+        </div>
+
+        <div class="toggle-item">
+          <label for="toggle-vod-length">
+            <span class="label-text">Hide VOD Length</span>
+            <span class="label-description">Hide video duration</span>
+          </label>
+          <input type="checkbox" id="toggle-vod-length" class="toggle-switch">
+        </div>
+
+        <div class="toggle-item">
+          <label for="toggle-titles">
+            <span class="label-text">Hide Titles</span>
+            <span class="label-description">Hide video titles</span>
+          </label>
+          <input type="checkbox" id="toggle-titles" class="toggle-switch">
+        </div>
+
+        <div class="toggle-item">
+          <label for="toggle-hover-previews">
+            <span class="label-text">Hide Hover Previews</span>
+            <span class="label-description">Prevent preview videos on hover</span>
+          </label>
+          <input type="checkbox" id="toggle-hover-previews" class="toggle-switch">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="toggle-group future-features">
+        <h2>Coming Soon</h2>
+
+        <div class="toggle-item disabled">
+          <label>
+            <span class="label-text">Auto-hide Chat</span>
+            <span class="label-description">Automatically hide chat messages</span>
+          </label>
+          <input type="checkbox" disabled>
+        </div>
+
+        <div class="toggle-item disabled">
+          <label>
+            <span class="label-text">Navigate to Latest VOD</span>
+            <span class="label-description">Quick button to go to newest VOD</span>
+          </label>
+          <input type="checkbox" disabled>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p class="version">v1.0.0</p>
+    </footer>
+  </div>
+
+  <script src="../shared/constants.js"></script>
+  <script src="../shared/storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
