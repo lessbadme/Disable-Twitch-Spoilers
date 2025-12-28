@@ -156,9 +156,38 @@ class TwitchSpoilerBlocker {
       if (!this.appliedElements.has(el)) {
         const isTooltip = el.closest('.online-side-nav-channel-tooltip__body');
         this.replaceTitleText(el, isTooltip);
+
+        // Monitor tooltips for re-rendering
+        if (isTooltip) {
+          this.monitorTooltip(el);
+        }
+
         this.appliedElements.add(el);
       }
     });
+  }
+
+  monitorTooltip(element) {
+    // Simple observer that re-applies text replacement if Twitch changes it
+    const observer = new MutationObserver(() => {
+      if (this.settings.hideTitles && element.textContent !== '[SPOILER HIDDEN]') {
+        element.textContent = '[SPOILER HIDDEN]';
+      }
+    });
+
+    observer.observe(element, {
+      characterData: true,
+      childList: true,
+      subtree: true
+    });
+
+    // Auto-cleanup when tooltip is removed
+    const checkRemoved = setInterval(() => {
+      if (!document.body.contains(element)) {
+        observer.disconnect();
+        clearInterval(checkRemoved);
+      }
+    }, 500);
   }
 
   hideHoverPreviews() {
@@ -227,28 +256,28 @@ class TwitchSpoilerBlocker {
       const tooltipBody = element.closest('.online-side-nav-channel-tooltip__body');
       if (tooltipBody && tooltipBody.querySelector('p') === element) {
         this.replaceTitleText(element, true);
+        this.monitorTooltip(element);
         return;
       }
     }
   }
 
   replaceTitleText(element, isTooltip = false) {
-    if (isTooltip) {
-      // For tooltips, hide just the text element, not the whole container
-      // This allows hover previews to still work independently
-      element.classList.add('spoiler-hidden-element');
-      console.log(`[Spoiler Blocker] Hid tooltip text element`);
-      return;
-    }
-
-    // For regular titles, replace the text
+    // Store original text if not already stored
     if (!element.dataset.originalText) {
       element.dataset.originalText = element.textContent;
     }
     const originalText = element.textContent;
+
+    // Replace text with spoiler warning
     element.textContent = '[SPOILER HIDDEN]';
     element.classList.add('spoiler-hidden-text');
-    console.log(`[Spoiler Blocker] Replaced title: "${originalText.substring(0, 50)}..."`);
+
+    if (isTooltip) {
+      console.log(`[Spoiler Blocker] Replaced tooltip title: "${originalText.substring(0, 50)}..."`);
+    } else {
+      console.log(`[Spoiler Blocker] Replaced title: "${originalText.substring(0, 50)}..."`);
+    }
   }
 
   checkAndHideHoverPreview(element) {
