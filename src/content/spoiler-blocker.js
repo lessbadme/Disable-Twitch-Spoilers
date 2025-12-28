@@ -234,13 +234,11 @@ class TwitchSpoilerBlocker {
 
   replaceTitleText(element, isTooltip = false) {
     if (isTooltip) {
-      // For tooltips, just hide the entire tooltip container instead of fighting with text replacement
-      const tooltipContainer = element.closest('[class*="tw-balloon"]') || element.closest('[role="tooltip"]');
-      if (tooltipContainer) {
-        tooltipContainer.classList.add('spoiler-hidden-element');
-        console.log(`[Spoiler Blocker] Hid tooltip container`);
-        return;
-      }
+      // For tooltips, hide just the text element, not the whole container
+      // This allows hover previews to still work independently
+      element.classList.add('spoiler-hidden-element');
+      console.log(`[Spoiler Blocker] Hid tooltip text element`);
+      return;
     }
 
     // For regular titles, replace the text
