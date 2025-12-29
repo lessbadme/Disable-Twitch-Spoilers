@@ -9,7 +9,8 @@
   const toggles = {
     hideThumbnails: document.getElementById('toggle-thumbnails'),
     hideVodLength: document.getElementById('toggle-vod-length'),
-    hideTitles: document.getElementById('toggle-titles')
+    hideTitles: document.getElementById('toggle-titles'),
+    hidePlayerTimes: document.getElementById('toggle-player-times')
   };
 
   // Initialize popup with saved settings
@@ -22,6 +23,7 @@
       toggles.hideThumbnails.checked = settings.hideThumbnails;
       toggles.hideVodLength.checked = settings.hideVodLength;
       toggles.hideTitles.checked = settings.hideTitles;
+      toggles.hidePlayerTimes.checked = settings.hidePlayerTimes;
 
       // Add change listeners to all toggles
       Object.keys(toggles).forEach(key => {

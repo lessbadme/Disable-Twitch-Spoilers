@@ -27,6 +27,19 @@ const VOD_LENGTH_SELECTORS = [
   'span[class*="video-time"]'
 ];
 
+const PLAYER_TIME_SELECTORS = [
+  '[data-a-target="player-seekbar-current-time"]',
+  '[data-a-target="player-seekbar-duration"]',
+  '.vod-seekbar-preview-overlay__wrapper',
+  '[data-test-selector="vod-seekbar-preview-overlay-wrapper"]',
+  '.seekbar-thumb'
+];
+
+const SEEKBAR_PROGRESS_SELECTORS = [
+  'span[data-test-selector="seekbar-segment__segment"][style*="background-color: rgb(169, 112, 255)"]',
+  'span.seekbar-segment[style*="rgb(169, 112, 255)"]'
+];
+
 const TITLE_SELECTORS = [
   '[data-a-target="stream-title"]',
   '[data-a-target="video-title"]',
@@ -41,5 +54,7 @@ const TITLE_SELECTORS = [
 if (typeof window !== 'undefined') {
   window.THUMBNAIL_SELECTORS = THUMBNAIL_SELECTORS;
   window.VOD_LENGTH_SELECTORS = VOD_LENGTH_SELECTORS;
+  window.PLAYER_TIME_SELECTORS = PLAYER_TIME_SELECTORS;
+  window.SEEKBAR_PROGRESS_SELECTORS = SEEKBAR_PROGRESS_SELECTORS;
   window.TITLE_SELECTORS = TITLE_SELECTORS;
 }
