@@ -31,7 +31,8 @@ const PLAYER_TIME_SELECTORS = [
   '[data-a-target="player-seekbar-current-time"]',
   '[data-a-target="player-seekbar-duration"]',
   '.vod-seekbar-preview-overlay__wrapper',
-  '[data-test-selector="vod-seekbar-preview-overlay-wrapper"]'
+  '[data-test-selector="vod-seekbar-preview-overlay-wrapper"]',
+  '.seekbar-thumb'
 ];
 
 const SEEKBAR_PROGRESS_SELECTORS = [
